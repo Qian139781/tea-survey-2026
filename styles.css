@@ -205,7 +205,18 @@ h1 { font-size: 38px; line-height: 1.28; margin: 0 0 16px; letter-spacing: -.02e
 .done-icon { width: 60px; height: 60px; margin: 0 auto 18px; border-radius: 50%; background: var(--green-soft); color: var(--green); display: grid; place-items: center; font-size: 30px; }
 .done h2 { margin: 0 0 8px; }
 .done p { color: var(--ink-soft); }
-.receipt { margin: 22px auto; padding: 12px 16px; max-width: 460px; background: #fafbf7; border: 1px dashed var(--line-strong); border-radius: 10px; font-size: 12px; color: var(--ink-faint); word-break: break-all; }
+.identity-card {
+  max-width: 520px; margin: 26px auto 12px; padding: 26px 28px;
+  background: linear-gradient(160deg, #f3f8f3, #fff);
+  border: 1px solid #d9e7dc; border-radius: 16px; text-align: center;
+}
+.identity-emoji { font-size: 38px; line-height: 1; margin-bottom: 10px; }
+.identity-kicker { color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: .16em; }
+.identity-title { font-size: 25px; font-weight: 800; color: #1f3a2b; margin: 8px 0 10px; }
+.identity-desc { font-size: 14px; line-height: 1.75; color: #4a5b50; }
+.identity-reasons { display: flex; flex-direction: column; gap: 3px; margin: 16px 0; color: var(--ink-faint); font-size: 12px; }
+.identity-copy { font-size: 12px; padding: 8px 18px; }
+.receipt { margin: 18px auto; padding: 12px 16px; max-width: 460px; background: #fafbf7; border: 1px dashed var(--line-strong); border-radius: 10px; font-size: 12px; color: var(--ink-faint); word-break: break-all; }
 .footer { text-align: center; padding: 0 20px 34px; color: var(--ink-faint); font-size: 12px; }
 
 /* 管理页 */
