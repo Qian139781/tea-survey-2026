@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>答卷管理 · 饮茶认知与需求调研</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">茶</span>
+      <span class="brand-text">答卷管理后台<small>SURVEY RESPONSE CONSOLE</small></span>
+    </div>
+    <nav class="topnav"><a href="index.html" class="admin-link">← 返回问卷</a></nav>
+  </header>
+
+  <main class="page admin-page">
+    <section id="lock" class="card lock-card">
+      <h2 style="margin-top:0">请输入管理口令</h2>
+      <p class="muted">用于查看全部答卷、汇总与导出 CSV。</p>
+      <input class="text-input" id="codeInput" type="password" placeholder="管理口令" style="min-height:auto" />
+      <button class="btn btn-primary" id="unlockBtn">进入管理页</button>
+      <div class="error-msg" id="lockError"></div>
+    </section>
+
+    <section id="console" class="hidden">
+      <div class="admin-head">
+        <div><h1>答卷汇总</h1><div class="muted" id="lastUpdate"></div></div>
+        <div class="table-tools" style="margin:0">
+          <button class="btn btn-ghost" id="refreshBtn">刷新数据</button>
+          <button class="btn btn-primary" id="csvBtn">导出 CSV ↓</button>
+        </div>
+      </div>
+      <div id="loadMsg" class="alert alert-info">正在从云数据库读取答卷…</div>
+      <div id="stats" class="stat-grid"></div>
+      <div class="panel">
+        <h2>关键分布</h2>
+        <div class="panel-grid" id="charts"></div>
+      </div>
+      <div class="panel">
+        <h2>答卷明细 <span class="muted" id="rowCount"></span></h2>
+        <div class="table-tools">
+          <input type="search" id="searchInput" placeholder="搜索年龄、状态、分群、联系方式…" />
+          <span class="muted">点击任意行展开全部答案</span>
+        </div>
+        <div class="table-scroll">
+          <table class="data">
+            <thead><tr><th>#</th><th>提交时间</th><th>年龄</th><th>饮茶频率</th><th>认知</th><th>状态兴趣</th><th>定制兴趣</th><th>分群</th><th>联系方式</th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+        <div class="pager">
+          <button class="btn btn-ghost" id="prevPage">← 上一页</button>
+          <span id="pageInfo"></span>
+          <button class="btn btn-ghost" id="nextPage">下一页 →</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="questions.js"></script>
+  <script src="cloud-cloudbase.js"></script>
+  <script src="cloud.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
