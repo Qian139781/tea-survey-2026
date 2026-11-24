@@ -296,6 +296,27 @@
     return out;
   }
 
+  function renderIdentity(record) {
+    const box = el('identityCard');
+    const id = window.TeaIdentity.get(record.a);
+    box.innerHTML =
+      '<div class="identity-emoji">' + esc(id.emoji) + '</div>' +
+      '<div class="identity-kicker">你的茶系身份</div>' +
+      '<div class="identity-title">' + esc(id.title) + '</div>' +
+      '<div class="identity-desc">' + esc(id.desc) + '</div>' +
+      '<div class="identity-reasons">' + id.reasons.map(r => '<span>· ' + esc(r) + '</span>').join('') + '</div>' +
+      '<button class="btn btn-ghost identity-copy" id="copyIdentityBtn" type="button">复制我的身份文案</button>';
+    el('copyIdentityBtn').onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(id.share);
+        el('copyIdentityBtn').textContent = '已复制 ✓';
+      } catch (e) {
+        el('copyIdentityBtn').textContent = '复制失败，请长按选择文字';
+      }
+    };
+    return id;
+  }
+
   async function submit() {
     if (state.submitting) return;
     state.submitting = true;
@@ -310,11 +331,16 @@
       contact: (state.contact || '').trim(),
       a: serialize()
     };
+    const identity = window.TeaIdentity.get(record.a);
+    record.identityMain = identity.main.name;
+    record.identitySub = identity.sub.name;
+    record.identityId = identity.main.id;
     try {
       const res = await window.TeaCloud.saveResponse(record);
       clearDraft();
       el('survey').classList.add('hidden');
       el('done').classList.remove('hidden');
+      renderIdentity(record);
       el('receipt').textContent = '提交时间：' + new Date(record.ts).toLocaleString('zh-CN') + '　｜　回执码：' + res.binId;
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e) {
