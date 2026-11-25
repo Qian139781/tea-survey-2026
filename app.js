@@ -83,9 +83,15 @@
     if (q.type === 'multi' || q.type === 'rank') {
       if (!Array.isArray(v) || !v.length) return label[q.type];
       if (v.length > q.max) return '最多只能选 ' + q.max + ' 项';
-      return null;
+    } else if (!v && v !== 0) {
+      return label[q.type];
     }
-    if (!v && v !== 0) return label[q.type];
+    // 选中「其他（请注明）」时，必须填写注明内容
+    const others = (q.options || []).filter(isOther).map(optLabel);
+    for (const ot of others) {
+      const picked = Array.isArray(v) ? v.indexOf(ot) >= 0 : v === ot;
+      if (picked && !(state.notes[noteKey(q.id, ot)] || '').trim()) return '请填写「其他」的具体内容';
+    }
     return null;
   }
 
