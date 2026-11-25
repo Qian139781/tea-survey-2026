@@ -93,71 +93,89 @@
       ctx.strokeStyle = '#DDE2D8'; ctx.lineWidth = 2; ctx.stroke();
 
       const logo = new Image();
-      logo.onload = () => {
+      const qr = new Image();
+      let logoLoaded = false, qrLoaded = false;
+      const draw = () => {
+        if (!logoLoaded || !qrLoaded) return;
         try {
           const lw = 360, lh = lw * (logo.height / logo.width);
           ctx.globalAlpha = 1;
-          ctx.drawImage(logo, (W - lw) / 2, 130, lw, lh);
+          ctx.drawImage(logo, (W - lw) / 2, 120, lw, lh);
 
           ctx.textAlign = 'center';
           ctx.fillStyle = '#0F6E56';
           ctx.font = '600 28px sans-serif';
-          ctx.fillText('知 茶 · 你 的 茶 系 身 份', W / 2, 425);
+          ctx.fillText('知 茶 · 你 的 茶 系 身 份', W / 2, 400);
 
           ctx.fillStyle = '#7A8A80';
           ctx.font = '26px sans-serif';
-          ctx.fillText('你的茶系身份', W / 2, 490);
+          ctx.fillText('你的茶系身份', W / 2, 462);
 
           ctx.fillStyle = '#1F3A2B';
           ctx.font = '700 84px sans-serif';
-          ctx.fillText(id.main.name, W / 2, 610);
+          ctx.fillText(id.main.name, W / 2, 574);
 
           ctx.fillStyle = '#BA7517';
           ctx.font = '600 48px sans-serif';
-          ctx.fillText(id.sub.name, W / 2, 690);
+          ctx.fillText(id.sub.name, W / 2, 650);
 
           ctx.fillStyle = '#4A5B50';
-          ctx.font = '32px sans-serif';
-          let y = 770;
-          y = wrapText(ctx, id.main.desc, W / 2, y, W - 200, 50, 2) + 10;
-          y = wrapText(ctx, id.sub.desc, W / 2, y, W - 200, 50, 2) + 20;
+          ctx.font = '31px sans-serif';
+          let y = 726;
+          y = wrapText(ctx, id.main.desc, W / 2, y, W - 200, 48, 2) + 8;
+          y = wrapText(ctx, id.sub.desc, W / 2, y, W - 200, 48, 2) + 14;
 
           ctx.strokeStyle = '#DDE2D8'; ctx.lineWidth = 1;
           ctx.beginPath(); ctx.moveTo(140, y); ctx.lineTo(W - 140, y); ctx.stroke();
-          y += 56;
+          y += 46;
 
           ctx.textAlign = 'left';
           ctx.fillStyle = '#6B7B70';
-          ctx.font = '28px sans-serif';
+          ctx.font = '26px sans-serif';
           id.reasons.forEach(r => {
-            wrapText(ctx, '· ' + r, 150, y, W - 300, 42, 1);
-            y += 52;
+            wrapText(ctx, '· ' + r, 150, y, W - 300, 40, 1);
+            y += 46;
           });
 
-          const boxY = Math.min(Math.max(y + 16, 1080), 1130);
+          // 底部：左侧分享引导 + 右侧二维码（可扫码填问卷）
+          const boxY = 1118, boxH = 210;
           ctx.fillStyle = '#E1F5EE';
-          roundRect(ctx, 140, boxY, W - 280, 132, 24); ctx.fill();
-          ctx.strokeStyle = '#9FE1CB'; ctx.stroke();
-          ctx.textAlign = 'center';
-          ctx.fillStyle = '#0F6E56';
-          ctx.font = '600 31px sans-serif';
-          ctx.fillText('欢迎将自己的茶系身份分享转发给更多人', W / 2, boxY + 58);
-          ctx.fillStyle = '#5A7A6C';
-          ctx.font = '25px sans-serif';
-          ctx.fillText('让更多人找到自己的那杯茶', W / 2, boxY + 100);
+          roundRect(ctx, 140, boxY, W - 280, boxH, 24); ctx.fill();
+          ctx.strokeStyle = '#9FE1CB'; ctx.lineWidth = 2; ctx.stroke();
 
-          ctx.fillStyle = '#9AA79E';
-          ctx.font = '23px sans-serif';
-          ctx.fillText('生成依据来自你的 28 道回答', W / 2, 1320);
+          ctx.textAlign = 'left';
           ctx.fillStyle = '#0F6E56';
-          ctx.font = '600 26px sans-serif';
-          ctx.fillText('知茶 · ZHI CHA', W / 2, 1360);
+          ctx.font = '700 34px sans-serif';
+          ctx.fillText('欢迎把身份分享给更多人', 180, boxY + 56);
+          ctx.fillStyle = '#5A7A6C';
+          ctx.font = '26px sans-serif';
+          ctx.fillText('也来测测你的茶系身份', 180, boxY + 104);
+          ctx.fillStyle = '#8A978D';
+          ctx.font = '23px sans-serif';
+          ctx.fillText('长按识别二维码 →', 180, boxY + 158);
+
+          const qrSize = 128, qrX = 758, qrY = boxY + 41;
+          ctx.fillStyle = '#FFFFFF';
+          roundRect(ctx, qrX - 8, qrY - 8, qrSize + 16, qrSize + 16, 12); ctx.fill();
+          ctx.drawImage(qr, qrX, qrY, qrSize, qrSize);
+
+          ctx.textAlign = 'center';
+          ctx.fillStyle = '#9AA79E';
+          ctx.font = '22px sans-serif';
+          ctx.fillText('生成依据来自你的 28 道回答', W / 2, 1372);
+          ctx.fillStyle = '#0F6E56';
+          ctx.font = '600 25px sans-serif';
+          ctx.fillText('知茶 · ZHI CHA', W / 2, 1405);
 
           resolve(canvas.toDataURL('image/png'));
         } catch (e) { reject(e); }
       };
+      logo.onload = () => { logoLoaded = true; draw(); };
+      qr.onload = () => { qrLoaded = true; draw(); };
       logo.onerror = () => reject(new Error('logo 加载失败'));
+      qr.onerror = () => reject(new Error('二维码加载失败'));
       logo.src = 'assets/zhicha-logo.jpg';
+      qr.src = 'assets/survey-qr.png';
     });
   }
 
