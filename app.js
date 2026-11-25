@@ -324,20 +324,73 @@
         el('copyIdentityBtn').textContent = '复制失败，请长按选择文字';
       }
     };
+    // 提前生成海报并缓存：保证点击保存时能同步调起系统分享（手机需要用户手势）
+    let posterDataUrl = null;
+    let posterPending = window.TeaIdentity.makePoster(id)
+      .then(d => { posterDataUrl = d; return d; })
+      .catch(() => null);
+
+    function dataUrlToFile(dataUrl, filename) {
+      const arr = String(dataUrl).split(',');
+      const mime = (arr[0].match(/:(.*?);/) || [])[1] || 'image/png';
+      const bin = atob(arr[1]);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return new File([bytes], filename, { type: mime });
+    }
+
+    function showPosterForLongPress(dataUrl) {
+      const old = document.getElementById('posterModal');
+      if (old) old.remove();
+      const wrap = document.createElement('div');
+      wrap.id = 'posterModal';
+      wrap.className = 'poster-modal';
+      wrap.innerHTML =
+        '<div class="poster-backdrop"></div>' +
+        '<div class="poster-panel">' +
+          '<div class="poster-tip">长按下方图片，选择「保存到相册」</div>' +
+          '<img src="' + dataUrl + '" alt="我的茶系身份海报" />' +
+          '<button class="btn btn-ghost poster-close" type="button">关闭</button>' +
+        '</div>';
+      document.body.appendChild(wrap);
+      const close = () => wrap.remove();
+      wrap.querySelector('.poster-backdrop').onclick = close;
+      wrap.querySelector('.poster-close').onclick = close;
+    }
+
     el('savePosterBtn').onclick = async () => {
       const btn = el('savePosterBtn');
-      btn.disabled = true; btn.textContent = '正在生成海报…';
+      const filename = '我的茶系身份-' + id.main.name + '.png';
+      btn.disabled = true; btn.textContent = '正在准备海报…';
       try {
-        const dataUrl = await window.TeaIdentity.makePoster(id);
-        const a = document.createElement('a');
-        a.href = dataUrl;
-        a.download = '我的茶系身份-' + id.main.name + '.png';
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        btn.textContent = '已保存 ✓';
+        const dataUrl = posterDataUrl || await posterPending;
+        if (!dataUrl) throw new Error('海报生成失败');
+        const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+        const file = dataUrlToFile(dataUrl, filename);
+        const canShare = !!(navigator.share && navigator.canShare && navigator.canShare({ files: [file] }));
+
+        if (canShare) {
+          try {
+            await navigator.share({ files: [file], title: '我的茶系身份', text: '我的茶系身份：' + id.title });
+            btn.textContent = '已调起系统分享 ✓';
+          } catch (e) {
+            if (e && e.name === 'AbortError') btn.textContent = '已取消分享';
+            else { showPosterForLongPress(dataUrl); btn.textContent = '长按图片保存'; }
+          }
+        } else if (isMobile) {
+          showPosterForLongPress(dataUrl);
+          btn.textContent = '长按图片保存';
+        } else {
+          const a = document.createElement('a');
+          a.href = dataUrl;
+          a.download = filename;
+          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          btn.textContent = '已保存 ✓';
+        }
       } catch (e) {
         btn.textContent = '生成失败，请重试';
       } finally {
-        setTimeout(() => { btn.disabled = false; btn.textContent = '保存身份海报 ↓'; }, 2200);
+        setTimeout(() => { btn.disabled = false; btn.textContent = '保存身份海报 ↓'; }, 2600);
       }
     };
     return id;
