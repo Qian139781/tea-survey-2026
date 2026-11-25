@@ -61,10 +61,13 @@ button, input, textarea { font: inherit; }
   border-radius: var(--radius); box-shadow: var(--shadow);
   padding: 36px 40px;
 }
-.cup-icon {
-  width: 68px; height: 68px; border-radius: 50%;
-  background: #eaf3ec; display: grid; place-items: center; margin-bottom: 22px;
+.brand-logo { margin-bottom: 14px; }
+.brand-logo img {
+  display: block; width: 190px; max-width: 100%; height: auto;
+  mix-blend-mode: multiply;
 }
+.done-logo { display: flex; justify-content: center; margin-bottom: 14px; }
+.done-logo img { width: 160px; }
 .intro-eyebrow {
   display: block; color: var(--green); font-size: 12px; font-weight: 700;
   letter-spacing: .14em; margin-bottom: 10px;
@@ -215,7 +218,14 @@ h1 { font-size: 38px; line-height: 1.28; margin: 0 0 16px; letter-spacing: -.02e
 .identity-title { font-size: 25px; font-weight: 800; color: #1f3a2b; margin: 8px 0 10px; }
 .identity-desc { font-size: 14px; line-height: 1.75; color: #4a5b50; }
 .identity-reasons { display: flex; flex-direction: column; gap: 3px; margin: 16px 0; color: var(--ink-faint); font-size: 12px; }
+.identity-share {
+  margin: 6px 0 18px; padding: 14px 16px; background: #e1f5ee;
+  border: 1px solid #9fe1cb; border-radius: 12px;
+  color: #0f6e56; font-size: 14px; font-weight: 700;
+}
+.identity-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 .identity-copy { font-size: 12px; padding: 8px 18px; }
+#savePosterBtn { font-size: 13px; padding: 10px 22px; }
 .receipt { margin: 18px auto; padding: 12px 16px; max-width: 460px; background: #fafbf7; border: 1px dashed var(--line-strong); border-radius: 10px; font-size: 12px; color: var(--ink-faint); word-break: break-all; }
 .footer { text-align: center; padding: 0 20px 34px; color: var(--ink-faint); font-size: 12px; }
 
