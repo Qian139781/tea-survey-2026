@@ -61,5 +61,119 @@
     };
   }
 
-  window.TeaIdentity = { get: get };
+  function wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
+    const chars = String(text).split('');
+    let line = '', lines = 0;
+    for (let i = 0; i < chars.length; i++) {
+      const test = line + chars[i];
+      if (ctx.measureText(test).width > maxWidth && line) {
+        ctx.fillText(line, x, y);
+        y += lineHeight; line = chars[i]; lines++;
+        if (maxLines && lines >= maxLines) break;
+      } else {
+        line = test;
+      }
+    }
+    if (line && (!maxLines || lines < maxLines)) ctx.fillText(line, x, y);
+    return y + lineHeight;
+  }
+
+  function makePoster(id) {
+    return new Promise((resolve, reject) => {
+      const W = 1080, H = 1440;
+      const canvas = document.createElement('canvas');
+      canvas.width = W; canvas.height = H;
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#F7F6F0';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#FFFFFF';
+      roundRect(ctx, 60, 60, W - 120, H - 120, 40);
+      ctx.fill();
+      ctx.strokeStyle = '#DDE2D8'; ctx.lineWidth = 2; ctx.stroke();
+
+      const logo = new Image();
+      logo.onload = () => {
+        try {
+          const lw = 360, lh = lw * (logo.height / logo.width);
+          ctx.globalAlpha = 1;
+          ctx.drawImage(logo, (W - lw) / 2, 130, lw, lh);
+
+          ctx.textAlign = 'center';
+          ctx.fillStyle = '#0F6E56';
+          ctx.font = '600 28px sans-serif';
+          ctx.fillText('知 茶 · 你 的 茶 系 身 份', W / 2, 425);
+
+          ctx.fillStyle = '#7A8A80';
+          ctx.font = '26px sans-serif';
+          ctx.fillText('你的茶系身份', W / 2, 490);
+
+          ctx.fillStyle = '#1F3A2B';
+          ctx.font = '700 84px sans-serif';
+          ctx.fillText(id.main.name, W / 2, 610);
+
+          ctx.fillStyle = '#BA7517';
+          ctx.font = '600 48px sans-serif';
+          ctx.fillText(id.sub.name, W / 2, 690);
+
+          ctx.fillStyle = '#4A5B50';
+          ctx.font = '32px sans-serif';
+          let y = 770;
+          y = wrapText(ctx, id.main.desc, W / 2, y, W - 200, 50, 2) + 10;
+          y = wrapText(ctx, id.sub.desc, W / 2, y, W - 200, 50, 2) + 20;
+
+          ctx.strokeStyle = '#DDE2D8'; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(140, y); ctx.lineTo(W - 140, y); ctx.stroke();
+          y += 56;
+
+          ctx.textAlign = 'left';
+          ctx.fillStyle = '#6B7B70';
+          ctx.font = '28px sans-serif';
+          id.reasons.forEach(r => {
+            wrapText(ctx, '· ' + r, 150, y, W - 300, 42, 1);
+            y += 52;
+          });
+
+          const boxY = Math.min(Math.max(y + 16, 1080), 1130);
+          ctx.fillStyle = '#E1F5EE';
+          roundRect(ctx, 140, boxY, W - 280, 132, 24); ctx.fill();
+          ctx.strokeStyle = '#9FE1CB'; ctx.stroke();
+          ctx.textAlign = 'center';
+          ctx.fillStyle = '#0F6E56';
+          ctx.font = '600 31px sans-serif';
+          ctx.fillText('欢迎将自己的茶系身份分享转发给更多人', W / 2, boxY + 58);
+          ctx.fillStyle = '#5A7A6C';
+          ctx.font = '25px sans-serif';
+          ctx.fillText('让更多人找到自己的那杯茶', W / 2, boxY + 100);
+
+          ctx.fillStyle = '#9AA79E';
+          ctx.font = '23px sans-serif';
+          ctx.fillText('生成依据来自你的 28 道回答', W / 2, 1320);
+          ctx.fillStyle = '#0F6E56';
+          ctx.font = '600 26px sans-serif';
+          ctx.fillText('知茶 · ZHI CHA', W / 2, 1360);
+
+          resolve(canvas.toDataURL('image/png'));
+        } catch (e) { reject(e); }
+      };
+      logo.onerror = () => reject(new Error('logo 加载失败'));
+      logo.src = 'assets/zhicha-logo.jpg';
+    });
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  window.TeaIdentity = { get: get, makePoster: makePoster };
 })();
