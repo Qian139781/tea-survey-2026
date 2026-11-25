@@ -305,13 +305,33 @@
       '<div class="identity-title">' + esc(id.title) + '</div>' +
       '<div class="identity-desc">' + esc(id.desc) + '</div>' +
       '<div class="identity-reasons">' + id.reasons.map(r => '<span>· ' + esc(r) + '</span>').join('') + '</div>' +
-      '<button class="btn btn-ghost identity-copy" id="copyIdentityBtn" type="button">复制我的身份文案</button>';
+      '<div class="identity-share">欢迎将自己的茶系身份分享转发给更多人</div>' +
+      '<div class="identity-actions">' +
+        '<button class="btn btn-primary" id="savePosterBtn" type="button">保存身份海报 ↓</button>' +
+        '<button class="btn btn-ghost identity-copy" id="copyIdentityBtn" type="button">复制身份文案</button>' +
+      '</div>';
     el('copyIdentityBtn').onclick = async () => {
       try {
         await navigator.clipboard.writeText(id.share);
         el('copyIdentityBtn').textContent = '已复制 ✓';
       } catch (e) {
         el('copyIdentityBtn').textContent = '复制失败，请长按选择文字';
+      }
+    };
+    el('savePosterBtn').onclick = async () => {
+      const btn = el('savePosterBtn');
+      btn.disabled = true; btn.textContent = '正在生成海报…';
+      try {
+        const dataUrl = await window.TeaIdentity.makePoster(id);
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = '我的茶系身份-' + id.main.name + '.png';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        btn.textContent = '已保存 ✓';
+      } catch (e) {
+        btn.textContent = '生成失败，请重试';
+      } finally {
+        setTimeout(() => { btn.disabled = false; btn.textContent = '保存身份海报 ↓'; }, 2200);
       }
     };
     return id;
