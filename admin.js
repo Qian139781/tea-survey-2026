@@ -142,11 +142,12 @@
         '<td>' + esc(flat(r.a.Q22)) + '</td>' +
         '<td><span class="group-tag ' + g.toLowerCase() + '">' + esc(groupName(g)) + '</span>' + (isB1(r.a) ? ' <span class="group-tag b">B1</span>' : '') + '</td>' +
         '<td>' + esc(r.identityMain ? (r.identityMain + ' · ' + (r.identitySub || '')) : (window.TeaIdentity ? window.TeaIdentity.get(r.a).title : '—')) + '</td>' +
-        '<td>' + esc(r.contact || '—') + '</td></tr>';
+        '<td>' + esc(r.contact || '—') + (r.group === 'yes' ? ' <span class="tag-group">内测群</span>' : '') + '</td></tr>';
       if (state.expanded === idx) {
         h += '<tr class="detail-row"><td colspan="10"><div class="detail-grid">' +
           QS.map(q => '<div><b>' + q.id + '</b>' + esc(flat(r.a[q.id]) || '—') + '</div>').join('') +
           '<div><b>填写时长</b>' + esc(r.dur || '—') + ' 秒</div><div><b>回执码</b>' + esc(r.binId || '—') + '</div>' +
+          '<div><b>知茶内测群</b>' + (r.group === 'yes' ? '愿意加入' : (r.group === 'no' ? '暂不需要' : '未选择')) + '</div>' +
           '</div></td></tr>';
       }
       return h;
@@ -179,11 +180,13 @@
 
   function exportCsv() {
     if (!state.records.length) { alert('当前没有可导出的答卷'); return; }
-    const heads = ['编号', '提交时间', '填写时长(秒)', '联系方式', '分群', '茶系身份', '兴趣副标签'].concat(QS.map(q => q.id + ' ' + q.title));
+    const heads = ['编号', '提交时间', '填写时长(秒)', '联系方式', '知茶内测群', '分群', '茶系身份', '兴趣副标签'].concat(QS.map(q => q.id + ' ' + q.title));
     const rows = [heads];
     state.records.forEach((r, i) => {
       const ident = window.TeaIdentity ? window.TeaIdentity.get(r.a) : null;
-      rows.push([i + 1, new Date(r.ts).toLocaleString('zh-CN'), r.dur || '', r.contact || '', groupName(groupOf(r.a)),
+      rows.push([i + 1, new Date(r.ts).toLocaleString('zh-CN'), r.dur || '', r.contact || '',
+        r.group === 'yes' ? '愿意加入' : (r.group === 'no' ? '暂不需要' : '未选择'),
+        groupName(groupOf(r.a)),
         r.identityMain || (ident ? ident.main.name : ''), r.identitySub || (ident ? ident.sub.name : '')]
         .concat(QS.map(q => flat(r.a[q.id]))));
     });

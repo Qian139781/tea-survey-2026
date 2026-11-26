@@ -10,7 +10,9 @@
     notes: {},
     idx: 0,
     startedAt: Date.now(),
-    submitting: false
+    submitting: false,
+    group: '',
+    contact: ''
   };
 
   function visible(q) {
@@ -35,7 +37,7 @@
   }
 
   function saveDraft() {
-    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ answers: state.answers, notes: state.notes, startedAt: state.startedAt })); } catch (e) { }
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ answers: state.answers, notes: state.notes, group: state.group, contact: state.contact, startedAt: state.startedAt })); } catch (e) { }
   }
   function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { } }
   function loadDraft() {
@@ -43,6 +45,7 @@
       const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
       if (d && d.answers) {
         state.answers = d.answers; state.notes = d.notes || {};
+        state.group = d.group || ''; state.contact = d.contact || '';
         state.startedAt = d.startedAt || Date.now();
         return true;
       }
@@ -272,15 +275,41 @@
   }
 
   function renderFinal(card) {
+    const showContact = state.group === 'yes';
     card.innerHTML =
       '<div><span class="q-section">结束语（感谢页）</span><span class="q-id">最后一步</span></div>' +
       '<div class="q-title">谢谢你花这 8 分钟</div>' +
       '<div class="q-hint">你的答案会直接影响我们接下来做什么。</div>' +
-      '<div class="q-body"><label class="option-label" for="contact">愿意参与后续试用或深聊的话，留个联系方式（选填）</label>' +
-      '<input class="text-input" id="contact" style="min-height:auto" placeholder="手机号 / 微信 / 邮箱，任一即可" value="' + esc(state.contact || '') + '" />' +
-      '<div class="privacy-note" style="margin-top:14px">联系方式仅用于后续联系；如不想留下，留空即可直接提交。</div></div>';
+      '<div class="group-box">' +
+        '<div class="group-title">想不想加入「知茶内测群」？</div>' +
+        '<div class="group-desc">好茶不等上市，先给懂的人尝 · 和我们一起，把茶做成你想要的样子</div>' +
+        '<div class="group-options">' +
+          '<label class="group-opt"><input type="radio" name="group" value="yes"' + (state.group === 'yes' ? ' checked' : '') + ' /><span>愿意，留下联系方式入群</span></label>' +
+          '<label class="group-opt"><input type="radio" name="group" value="no"' + (state.group === 'no' ? ' checked' : '') + ' /><span>暂时不用</span></label>' +
+        '</div>' +
+        '<div id="contactWrap" class="' + (showContact ? '' : 'hidden') + '">' +
+          '<label class="option-label" for="contact">手机号 / 微信号（方便拉你入群）</label>' +
+          '<input class="text-input" id="contact" style="min-height:auto" placeholder="手机号 / 微信号，任一即可" value="' + esc(state.contact || '') + '" />' +
+          '<div class="privacy-note" style="margin-top:12px">仅用于内测群邀请，不推销、不外传。</div>' +
+        '</div>' +
+      '</div>';
+    card.querySelectorAll('input[name="group"]').forEach(r => {
+      r.onchange = () => {
+        state.group = r.value;
+        const wrap = card.querySelector('#contactWrap');
+        if (r.value === 'yes') {
+          wrap.classList.remove('hidden');
+        } else {
+          wrap.classList.add('hidden');
+          state.contact = '';
+          const ci0 = card.querySelector('#contact');
+          if (ci0) ci0.value = '';
+        }
+        setError('', card); saveDraft();
+      };
+    });
     const ci = card.querySelector('#contact');
-    ci.oninput = () => { state.contact = ci.value; };
+    if (ci) ci.oninput = () => { state.contact = ci.value; };
   }
 
   function serialize() {
@@ -306,7 +335,7 @@
     const box = el('identityCard');
     const id = window.TeaIdentity.get(record.a);
     box.innerHTML =
-      '<div class="identity-emoji">' + esc(id.emoji) + '</div>' +
+      (id.avatar ? '<div class="identity-avatar"><img src="' + esc(id.avatar) + '" alt="' + esc(id.title) + '" /></div>' : '<div class="identity-emoji">' + esc(id.emoji) + '</div>') +
       '<div class="identity-kicker">你的茶系身份</div>' +
       '<div class="identity-title">' + esc(id.title) + '</div>' +
       '<div class="identity-desc">' + esc(id.desc) + '</div>' +
@@ -408,6 +437,7 @@
       dur: Math.round((Date.now() - state.startedAt) / 1000),
       src: window.SURVEY_CONFIG.version,
       contact: (state.contact || '').trim(),
+      group: state.group || '',
       a: serialize()
     };
     const identity = window.TeaIdentity.get(record.a);
@@ -439,11 +469,19 @@
       setError(err || '', card);
       if (err) { card.querySelector('.field-error') && null; window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
       state.idx++; render();
-    } else submit();
+    } else {
+      const card = el('questionCard');
+      if (state.group === 'yes' && !(state.contact || '').trim()) {
+        setError('愿意加入内测群的话，请留下手机号或微信号', card);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      submit();
+    }
   };
   el('prevBtn').onclick = () => { if (state.idx > 0) { state.idx--; render(); } };
   el('againBtn').onclick = () => {
-    state.answers = {}; state.notes = {}; state.contact = ''; state.idx = 0; state.startedAt = Date.now();
+    state.answers = {}; state.notes = {}; state.contact = ''; state.group = ''; state.idx = 0; state.startedAt = Date.now();
     clearDraft(); el('done').classList.add('hidden'); el('intro').classList.remove('hidden');
     el('startBtn').innerHTML = '开始填写 <span aria-hidden="true">→</span>';
     window.scrollTo({ top: 0 });
