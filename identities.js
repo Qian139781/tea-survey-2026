@@ -74,7 +74,7 @@
   function avatarFor(mainName, subName) {
     const row = AVATAR_MAP[mainName];
     const n = row && row[subName];
-    return n ? ('assets/chars/' + String(n).padStart(2, '0') + '.webp') : '';
+    return n ? ('assets/chars/' + String(n).padStart(2, '0') + '.jpg') : '';
   }
 
   function wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
