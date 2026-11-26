@@ -111,9 +111,11 @@
       const logo = new Image();
       const qr = new Image();
       const avatar = new Image();
-      let logoLoaded = false, qrLoaded = false, avatarLoaded = false;
+      let logoLoaded = false, qrLoaded = false, avatarLoaded = false, avatarSettled = false;
       const draw = () => {
+        // 必须等 logo、二维码、以及（若有）形象图都加载完再画，避免形象图没画就 resolve
         if (!logoLoaded || !qrLoaded) return;
+        if (id.avatar && !avatarSettled) return;
         try {
           const lw = 340, lh = lw * (logo.height / logo.width);
           ctx.globalAlpha = 1;
@@ -193,13 +195,14 @@
       };
       logo.onload = () => { logoLoaded = true; draw(); };
       qr.onload = () => { qrLoaded = true; draw(); };
-      avatar.onload = () => { avatarLoaded = true; draw(); };
+      avatar.onload = () => { avatarLoaded = true; avatarSettled = true; draw(); };
       logo.onerror = () => reject(new Error('logo 加载失败'));
       qr.onerror = () => reject(new Error('二维码加载失败'));
-      avatar.onerror = () => { avatarLoaded = false; draw(); };
+      avatar.onerror = () => { avatarLoaded = false; avatarSettled = true; draw(); };
       logo.src = 'assets/zhicha-logo.jpg';
       qr.src = 'assets/survey-qr.png';
       if (id.avatar) avatar.src = id.avatar;
+      else avatarSettled = true;
     });
   }
 
