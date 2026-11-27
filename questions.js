@@ -119,9 +119,9 @@ window.QUESTIONS = [
     ]
   },
   {
-    id: 'Q14', type: 'matrix', required: true, section: '你怎么看茶，又懂多少',
-    title: '下面几句话，说说你同意到什么程度。',
-    hint: '1＝完全不同意　2＝不太同意　3＝一般　4＝比较同意　5＝完全同意',
+    id: 'Q14', type: 'matrix', required: true, binary: true, section: '你怎么看茶，又懂多少',
+    title: '下面几句话，你是同意还是不同意？',
+    hint: '每行选「是」或「否」即可',
     rows: [
       'a. 喝茶对身体有好处',
       'b. 茶好不好喝，是我会认真考虑的事',
@@ -175,16 +175,16 @@ window.QUESTIONS = [
     ]
   },
   {
-    id: 'Q19', type: 'scale', required: true, section: '茶和状态，你信几分',
-    title: '如果有内容专门讲“茶和状态的关系”——什么时间喝什么茶、对精力、消化、睡眠状态会有什么影响，你想看吗？',
+    id: 'Q19', type: 'scale', required: true, section: '茶和健康状态，你信几分',
+    title: '如果有内容专门讲“茶和健康状态的关系”——什么时间喝什么茶、对精力、消化、睡眠状态会有什么影响，你想看吗？',
     scaleLabels: ['1＝完全不感兴趣', '2＝不太感兴趣', '3＝一般，看到会看', '4＝比较感兴趣', '5＝非常感兴趣']
   },
   {
-    id: 'Q20', type: 'multi', required: true, max: 4, section: '茶和状态，你信几分', only: 'q19high',
+    id: 'Q20', type: 'multi', required: true, max: 4, section: '茶和健康状态，你信几分', only: 'q19high',
     title: '如果想看，你最想看到哪几部分？最多选 4 项。',
     options: [
       '成分与原理：茶多酚、茶氨酸、咖啡因到底是什么',
-      '按状态给建议：提神、抗疲劳、消化、应酬后、睡眠',
+      '按健康状态给建议：提神、抗疲劳、消化、应酬后、睡眠',
       '哪些人不适合喝哪种茶（禁忌和注意事项）',
       '每天喝多少、什么时间喝最合适',
       '怎么搭配更好：加奶、加柠檬、加草本、冷泡',
@@ -194,8 +194,8 @@ window.QUESTIONS = [
     ]
   },
   {
-    id: 'Q21', type: 'single', required: true, section: '茶和状态，你信几分',
-    title: '对这类“茶＋状态”的内容，你最担心的是什么？',
+    id: 'Q21', type: 'single', required: true, section: '茶和健康状态，你信几分',
+    title: '对这类“茶＋健康状态”的内容，你最担心的是什么？',
     options: [
       '说法不靠谱，怕被忽悠', '太像广告，实际是在卖货', '专业词太多，看不懂',
       '讲得太笼统，跟我的情况不匹配', '担心照着喝也没什么用', '没有顾虑，愿意看',

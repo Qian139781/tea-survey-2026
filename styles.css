@@ -193,6 +193,19 @@ h1 { font-size: 38px; line-height: 1.28; margin: 0 0 16px; letter-spacing: -.02e
 .scale-cell.selected { border-color: var(--green); background: var(--green-soft); box-shadow: inset 0 0 0 1px var(--green); font-weight: 700; }
 .scale-cell strong { display: block; font-size: 20px; color: var(--green); }
 
+.binary-list { display: flex; flex-direction: column; gap: 14px; }
+.binary-row { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.binary-q { font-size: 14px; color: var(--ink); line-height: 1.6; margin-bottom: 12px; }
+.binary-opts { display: flex; gap: 10px; }
+.binary-opt {
+  position: relative; flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 11px 8px; border: 1px solid var(--line); border-radius: 10px;
+  background: #fff; color: var(--ink-soft); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all .15s; user-select: none;
+}
+.binary-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+.binary-opt.selected { background: var(--green-soft); border-color: var(--green); color: var(--green-dark); }
+
 .matrix-wrap { overflow-x: auto; }
 .matrix-table { width: 100%; border-collapse: collapse; min-width: 560px; }
 .matrix-table th, .matrix-table td { padding: 12px 8px; text-align: center; border-bottom: 1px solid var(--line); }

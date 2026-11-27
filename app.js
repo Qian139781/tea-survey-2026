@@ -80,7 +80,7 @@
     const label = { single: '请选择一项', multi: '请至少选择一项', rank: '请至少选择一项并排序', scale: '请选择分数', matrix: '请为每一行打分' };
     if (q.type === 'text') return null;
     if (q.type === 'matrix') {
-      if (!q.rows.every((_, i) => v && v['row' + i])) return label.matrix;
+      if (!q.rows.every((_, i) => v && v['row' + i])) return q.binary ? '请每行都选「是」或「否」' : label.matrix;
       return null;
     }
     if (q.type === 'multi' || q.type === 'rank') {
@@ -186,6 +186,18 @@
       return h + '</div>';
     }
     if (q.type === 'matrix') {
+      if (q.binary) {
+        // 是/否卡片式：每行一题，两个按钮，手机无需左右拖动
+        let h = '<div class="binary-list">';
+        q.rows.forEach((row, ri) => {
+          const cur = v && v['row' + ri];
+          h += '<div class="binary-row"><div class="binary-q">' + esc(row) + '</div><div class="binary-opts">' +
+            '<label class="binary-opt' + (cur === 1 ? ' selected' : '') + '"><input type="radio" name="matrix_' + q.id + '_' + ri + '" value="1" data-row="' + ri + '"' + (cur === 1 ? ' checked' : '') + ' /><span>是 · 同意</span></label>' +
+            '<label class="binary-opt' + (cur === 2 ? ' selected' : '') + '"><input type="radio" name="matrix_' + q.id + '_' + ri + '" value="2" data-row="' + ri + '"' + (cur === 2 ? ' checked' : '') + ' /><span>否 · 不同意</span></label>' +
+            '</div></div>';
+        });
+        return h + '</div>';
+      }
       let h = '<div class="matrix-wrap"><table class="matrix-table"><thead><tr><th></th><th>1 完全不同意</th><th>2 不太同意</th><th>3 一般</th><th>4 比较同意</th><th>5 完全同意</th></tr></thead><tbody>';
       q.rows.forEach((row, ri) => {
         h += '<tr><td>' + esc(row) + '</td>';
@@ -258,6 +270,12 @@
           obj['row' + inp.dataset.row] = Number(inp.value);
           state.answers[q.id] = obj; setError('', card); saveDraft();
           card.querySelectorAll('.error-msg').forEach(x => x.textContent = '');
+          if (q.binary) {
+            const ri = inp.dataset.row;
+            card.querySelectorAll('input[data-row="' + ri + '"]').forEach(x => {
+              x.closest('.binary-opt').classList.toggle('selected', x.checked);
+            });
+          }
         };
       });
     } else if (q.type === 'text') {
@@ -324,7 +342,10 @@
         out[q.id] = n ? n + '（' + (full.split('＝')[1] || full) + '）' : '';
       } else if (q.type === 'matrix') {
         const obj = {};
-        q.rows.forEach((row, i) => { obj['abcdef'[i]] = (v && v['row' + i]) || ''; });
+        q.rows.forEach((row, i) => {
+          const n = v && v['row' + i];
+          obj['abcdef'[i]] = q.binary ? (n === 1 ? '是' : (n === 2 ? '否' : '')) : (n || '');
+        });
         out[q.id] = obj;
       } else out[q.id] = v || '';
     });
